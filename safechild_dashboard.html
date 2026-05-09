@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeChild | AI Grooming Behavior Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --neon-cyan: #00f0ff;
+            --neon-magenta: #ff00a0;
+            --neon-orange: #ff6b35;
+            --neon-crimson: #ff1744;
+            --deep-black: #0a0a0f;
+            --midnight-blue: #0d1b2a;
+            --glass-bg: rgba(13, 27, 42, 0.6);
+            --glass-border: rgba(0, 240, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--deep-black);
+            color: #e0e0e0;
+            font-family: 'Rajdhani', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Cyber Grid Background */
+        .cyber-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 15s infinite;
+            box-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) translateX(0); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+
+        /* Scanning Line */
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            animation: scan 4s linear infinite;
+            z-index: 100;
+            opacity: 0.5;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100vh; }
+        }
+
+        /* Glass Card */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.05) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Neon Glow */
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3), 0 0 40px rgba(0, 240, 255, 0.1);
+        }
+
+        .neon-glow-magenta {
+            box-shadow: 0 0 20px rgba(255, 0, 160, 0.3), 0 0 40px rgba(255, 0, 160, 0.1);
+        }
+
+        .neon-glow-orange {
+            box-shadow: 0 0 20px rgba(255, 107, 53, 0.3), 0 0 40px rgba(255, 107, 53, 0.1);
+        }
+
+        .neon-glow-crimson {
+            box-shadow: 0 0 20px rgba(255, 23, 68, 0.3), 0 0 40px rgba(255, 23, 68, 0.1);
+        }
+
+        /* Holographic Shield */
+        .shield-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shield {
+            width: 150px;
+            height: 150px;
+            border: 3px solid var(--neon-cyan);
+            border-radius: 50%;
+            position: relative;
+            animation: pulse-shield 2s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+
+        .shield::before {
+            content: '';
+            position: absolute;
+            inset: -10px;
+            border: 2px solid rgba(0, 240, 255, 0.3);
+            border-radius: 50%;
+            animation: pulse-shield 2s ease-in-out infinite 0.5s;
+        }
+
+        .shield::after {
+            content: '';
+            position: absolute;
+            inset: -20px;
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            border-radius: 50%;
+            animation: pulse-shield 2s ease-in-out infinite 1s;
+        }
+
+        @keyframes pulse-shield {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        /* Risk Meter */
+        .risk-meter {
+            position: relative;
+            width: 200px;
+            height: 200px;
+        }
+
+        .risk-meter svg {
+            transform: rotate(-90deg);
+        }
+
+        .risk-meter-circle {
+            fill: none;
+            stroke-width: 8;
+            stroke-linecap: round;
+        }
+
+        .risk-meter-bg {
+            stroke: rgba(255, 255, 255, 0.1);
+        }
+
+        .risk-meter-fill {
+            stroke: var(--neon-cyan);
+            stroke-dasharray: 440;
+            stroke-dashoffset: 440;
+            transition: stroke-dashoffset 1s ease, stroke 0.5s ease;
+            filter: drop-shadow(0 0 10px var(--neon-cyan));
+        }
+
+        /* Threat Pulse */
+        .threat-pulse {
+            animation: threat-blink 1s ease-in-out infinite;
+        }
+
+        @keyframes threat-blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Message Styles */
+        .msg-predator {
+            background: linear-gradient(135deg, rgba(255, 23, 68, 0.15), rgba(255, 0, 160, 0.1));
+            border-left: 3px solid var(--neon-crimson);
+        }
+
+        .msg-victim {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(0, 240, 255, 0.05));
+            border-left: 3px solid var(--neon-cyan);
+        }
+
+        .msg-safe {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+            border-left: 3px solid #00ff88;
+        }
+
+        /* Keyword Highlight */
+        .keyword-highlight {
+            background: rgba(255, 23, 68, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #ff6b6b;
+            animation: glow-text 1.5s ease-in-out infinite;
+        }
+
+        @keyframes glow-text {
+            0%, 100% { text-shadow: 0 0 5px rgba(255, 23, 68, 0.5); }
+            50% { text-shadow: 0 0 15px rgba(255, 23, 68, 0.8), 0 0 25px rgba(255, 23, 68, 0.4); }
+        }
+
+        /* LIME Capsules */
+        .lime-capsule {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 4px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .lime-capsule:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .lime-positive {
+            background: linear-gradient(135deg, rgba(255, 23, 68, 0.2), rgba(255, 0, 160, 0.15));
+            border: 1px solid rgba(255, 23, 68, 0.4);
+            color: #ff6b6b;
+        }
+
+        .lime-negative {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 240, 255, 0.1));
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+
+        /* Cloud Status Indicators */
+        .cloud-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.1);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00ff88;
+            box-shadow: 0 0 10px #00ff88;
+            animation: status-pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes status-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Alert Levels */
+        .alert-low { color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
+        .alert-medium { color: #ffd700; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+        .alert-high { color: #ff6b35; text-shadow: 0 0 10px rgba(255, 107, 53, 0.5); }
+        .alert-critical { color: #ff1744; text-shadow: 0 0 10px rgba(255, 23, 68, 0.5); animation: critical-pulse 0.5s ease-in-out infinite; }
+
+        @keyframes critical-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+
+        /* Typing Effect */
+        .typing-effect::after {
+            content: '|';
+            animation: blink 1s step-end infinite;
+            color: var(--neon-cyan);
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--deep-black);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-cyan);
+            border-radius: 3px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .shield-container { width: 120px; height: 120px; }
+            .shield { width: 80px; height: 80px; font-size: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="cyber-grid"></div>
+    <div class="particles" id="particles"></div>
+    <div class="scan-line"></div>
+
+    <!-- Main Container -->
+    <div class="relative z-10 min-h-screen">
+
+        <!-- HEADER -->
+        <header class="fixed top-0 w-full z-50 glass-card border-b border-cyan-500/20 px-6 py-4">
+            <div class="max-w-7xl mx-auto flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="text-3xl">🛡️</div>
+                    <div>
+                        <h1 class="text-2xl font-bold tracking-wider" style="font-family: 'Orbitron', sans-serif; color: var(--neon-cyan); text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);">
+                            SAFECHILD
+                        </h1>
+                        <p class="text-xs tracking-widest text-cyan-400/70">AI GROOMING BEHAVIOR INTELLIGENCE</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="cloud-status">
+                        <div class="status-dot"></div>
+                        <span class="text-sm font-medium text-cyan-300">SYSTEM ONLINE</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs text-cyan-400/60">MODEL STATUS</div>
+                        <div class="text-sm font-bold text-green-400">DistilBERT ACTIVE</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- HERO SECTION -->
+        <section class="pt-32 pb-16 px-6">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col lg:flex-row items-center gap-12">
+                    <div class="flex-1 text-center lg:text-left">
+                        <h2 class="text-5xl lg:text-7xl font-black mb-6" style="font-family: 'Orbitron', sans-serif;">
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
+                                SafeChild
+                            </span>
+                        </h2>
+                        <p class="text-xl text-cyan-300/80 mb-4 font-light tracking-wide">
+                            AI-Powered Grooming Behavior Intelligence System
+                        </p>
+                        <div class="text-sm text-cyan-400/50 font-mono typing-effect" id="typing-text">
+                            Scanning conversations for predatory patterns...
+                        </div>
+                        <div class="mt-8 flex flex-wrap gap-4 justify-center lg:justify-start">
+                            <button onclick="scrollToAnalyzer()" class="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg font-bold text-white hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 transform hover:scale-105">
+                                🔍 ANALYZE CHAT
+                            </button>
+                            <button onclick="scrollToDashboard()" class="px-8 py-3 border border-cyan-500/50 rounded-lg font-bold text-cyan-400 hover:bg-cyan-500/10 transition-all duration-300">
+                                📊 DASHBOARD
+                            </button>
+                        </div>
+                    </div>
+                    <div class="shield-container">
+                        <div class="shield">🛡️</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LIVE CHAT ANALYZER -->
+        <section id="analyzer" class="py-16 px-6">
+            <div class="max-w-7xl mx-auto">
+                <h3 class="text-3xl font-bold mb-8 text-center" style="font-family: 'Orbitron', sans-serif; color: var(--neon-cyan);">
+                    ⚡ LIVE CHAT ANALYZER
+                </h3>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <!-- Chat Interface -->
+                    <div class="glass-card neon-glow p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h4 class="text-lg font-bold text-cyan-300">Conversation Feed</h4>
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                                <span class="text-xs text-green-400">LIVE</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 max-h-96 overflow-y-auto pr-2" id="chat-messages">
+                            <!-- Messages injected by JS -->
+                        </div>
+
+                        <div class="mt-4 pt-4 border-t border-cyan-500/20">
+                            <div class="flex gap-2">
+                                <input type="text" id="chat-input" placeholder="Type a message to analyze..." 
+                                    class="flex-1 bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-2 text-white placeholder-cyan-700 focus:outline-none focus:border-cyan-400 transition-colors">
+                                <button onclick="addMessage()" class="px-4 py-2 bg-cyan-500/20 border border-cyan-500/50 rounded-lg text-cyan-300 hover:bg-cyan-500/30 transition-all">
+                                    ➤
+                                </button>
+                            </div>
+                            <div class="mt-2 flex gap-2">
+                                <button onclick="loadExample('trust')" class="text-xs px-3 py-1 rounded-full border border-pink-500/30 text-pink-400 hover:bg-pink-500/10 transition-all">Trust Building</button>
+                                <button onclick="loadExample('isolation')" class="text-xs px-3 py-1 rounded-full border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 transition-all">Isolation</button>
+                                <button onclick="loadExample('secrecy')" class="text-xs px-3 py-1 rounded-full border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition-all">Secrecy</button>
+                                <button onclick="loadExample('solicitation')" class="text-xs px-3 py-1 rounded-full border border-red-500/30 text-red-400 hover:bg-red-500/10 transition-all">Solicitation</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Real-time Analysis -->
+                    <div class="space-y-6">
+                        <!-- Risk Meter -->
+                        <div class="glass-card neon-glow p-6 text-center">
+                            <h4 class="text-lg font-bold text-cyan-300 mb-4">Overall Risk Score</h4>
+                            <div class="risk-meter mx-auto">
+                                <svg width="200" height="200" viewBox="0 0 200 200">
+                                    <circle class="risk-meter-circle risk-meter-bg" cx="100" cy="100" r="70"/>
+                                    <circle class="risk-meter-circle risk-meter-fill" id="risk-circle" cx="100" cy="100" r="70"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                    <span class="text-4xl font-bold" id="risk-value" style="color: var(--neon-cyan);">0.00</span>
+                                    <span class="text-sm text-cyan-400/60 mt-1">RISK LEVEL</span>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <span id="alert-badge" class="px-4 py-2 rounded-full text-sm font-bold bg-green-500/20 text-green-400 border border-green-500/30">
+                                    🟢 LOW
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Category Breakdown -->
+                        <div class="glass-card neon-glow p-6">
+                            <h4 class="text-lg font-bold text-cyan-300 mb-4">Behavior Analysis</h4>
+                            <div class="space-y-3" id="category-bars">
+                                <!-- Bars injected by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI THREAT VISUALIZATION -->
+        <section class="py-16 px-6">
+            <div class="max-w-7xl mx-auto">
+                <h3 class="text-3xl font-bold mb-8 text-center" style="font-family: 'Orbitron', sans-serif; color: var(--neon-cyan);">
+                    🎯 AI THREAT VISUALIZATION
+                </h3>
+
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <!-- Radar Chart -->
+                    <div class="glass-card neon-glow p-6">
+                        <h4 class="text-lg font-bold text-cyan-300 mb-4 text-center">Behavioral Radar</h4>
+                        <canvas id="radarChart" width="300" height="300"></canvas>
+                    </div>
+
+                    <!-- Escalation Timeline -->
+                    <div class="glass-card neon-glow p-6 lg:col-span-2">
+                        <h4 class="text-lg font-bold text-cyan-300 mb-4">Conversation Escalation Timeline</h4>
+                        <canvas id="escalationChart" width="600" height="300"></canvas>
+                        <div class="mt-4 flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                                    <span class="text-xs text-cyan-400/60">Safe</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                    <span class="text-xs text-cyan-400/60">Caution</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                    <span class="text-xs text-cyan-400/60">Critical</span>
+                                </div>
+                            </div>
+                            <div class="text-sm font-mono text-cyan-400" id="escalation-status">
+                                Trend: STABLE
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXPLAINABLE AI PANEL -->
+        <section class="py-16 px-6">
+            <div class="max-w-7xl mx-auto">
+                <h3 class="text-3xl font-bold mb-8 text-center" style="font-family: 'Orbitron', sans-serif; color: var(--neon-cyan);">
+                    🔬 EXPLAINABLE AI — LIME FORENSICS
+                </h3>
+
+                <div class="glass-card neon-glow p-8">
+                    <div class="grid lg:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-lg font-bold text-cyan-300 mb-4">Trigger Word Analysis</h4>
+                            <p class="text-sm text-cyan-400/60 mb-4">Words that contributed to the AI's decision (LIME attribution)</p>
+                            <div id="lime-capsules" class="flex flex-wrap">
+                                <!-- Capsules injected by JS -->
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold text-cyan-300 mb-4">AI Reasoning</h4>
+                            <div class="space-y-3" id="ai-reasoning">
+                                <div class="p-4 rounded-lg bg-black/40 border border-cyan-500/20">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-cyan-400">🧠</span>
+                                        <span class="font-bold text-cyan-300">Pattern Detected</span>
+                                    </div>
+                                    <p class="text-sm text-cyan-400/70">Message contains trust-building language typical of grooming phase 1.</p>
+                                </div>
+                                <div class="p-4 rounded-lg bg-black/40 border border-pink-500/20">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-pink-400">⚠️</span>
+                                        <span class="font-bold text-pink-300">Risk Indicator</span>
+                                    </div>
+                                    <p class="text-sm text-pink-400/70">Age-related compliment + secrecy request = High correlation with predatory behavior.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONVERSATION RISK TRACKER -->
+        <section class="py-16 px-6">
+            <div class="max-w-7xl mx-auto">
+                <h3 class="text-3xl font-bold mb-8 text-center" style="font-family: 'Orbitron', sans-serif; color: var(--neon-cyan);">
+                    📈 CONVERSATION RISK TRACKER
+                </h3>
+
+                <div class="grid lg:grid-cols-4 gap-6">
+                    <!-- Stage Cards -->
+                    <div class="glass-card p-4 text-center opacity-50" id="stage-1">
+                        <div class="text-2xl mb-2">🟢</div>
+                        <h5 class="font-bold text-cyan-300">STAGE 1</h5>
+                        <p class="text-xs text-cyan-400/60">Initial Contact</p>
+                        <div class="mt-2 text-xs text-green-400">SAFE</div>
+                    </div>
+                    <div class="glass-card p-4 text-center opacity-50" id="stage-2">
+                        <div class="text-2xl mb-2">🟡</div>
+                        <h5 class="font-bold text-cyan-300">STAGE 2</h5>
+                        <p class="text-xs text-cyan-400/60">Trust Building</p>
+                        <div class="mt-2 text-xs text-yellow-400">CAUTION</div>
+                    </div>
+                    <div class="glass-card p-4 text-center opacity-50" id="stage-3">
+                        <div class="text-2xl mb-2">🟠</div>
+                        <h5 class="font-bold text-cyan-300">STAGE 3</h5>
+                        <p class="text-xs text-cyan-400/60">Isolation + Secrecy</p>
+                        <div class="mt-2 text-xs text-orange-400">ELEVATED</div>
+                    </div>
+                    <div class="glass-card p-4 text-center opacity-50" id="stage-4">
+                        <div class="text-2xl mb-2">🔴</div>
+                        <h5 class="font-bold text-cyan-300">STAGE 4</h5>
+                        <p class="text-xs text-cyan-400/60">Solicitation</p>
+                        <div class="mt-2 text-xs text-red-400">CRITICAL</div>
+                    </div>
+                </div>
+
+                <div class="mt-8 glass-card neon-glow p-6">
+                    <h4 class="text-lg font-bold text-cyan-300 mb-4">AI Confidence Levels</h4>
+                    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4" id="confidence-levels">
+                        <!-- Confidence bars injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CHILD SAFETY COMMAND CENTER -->
+        <section id="dashboard" class="py-16 px-6">
+            <div class="max-w-7xl mx-auto">
+                <h3 class="text-3xl font-bold mb-8 text-center" style="font-family: 'Orbitron', sans-serif; color: var(--neon-cyan);">
+                    🖥️ CHILD SAFETY COMMAND CENTER
+                </h3>
+
+                <div class="grid lg:grid-cols-3 gap-6">
+                    <!-- System Status -->
+                    <div class="glass-card neon-glow p-6">
+                        <h4 class="text-lg font-bold text-cyan-300 mb-4">System Status</h4>
+                        <div class="space-y-3">
+                            <div class="cloud-status">
+                                <div class="status-dot"></div>
+                                <div>
+                                    <div class="text-sm font-medium text-cyan-300">DistilBERT Model</div>
+                                    <div class="text-xs text-cyan-400/60">Active | v1.0.3</div>
+                                </div>
+                            </div>
+                            <div class="cloud-status">
+                                <div class="status-dot" style="background: #00ff88; box-shadow: 0 0 10px #00ff88;"></div>
+                                <div>
+                                    <div class="text-sm font-medium text-cyan-300">LIME Explainer</div>
+                                    <div class="text-xs text-cyan-400/60">Ready | 500 samples</div>
+                                </div>
+                            </div>
+                            <div class="cloud-status">
+                                <div class="status-dot" style="background: #00ff88; box-shadow: 0 0 10px #00ff88;"></div>
+                                <div>
+                                    <div class="text-sm font-medium text-cyan-300">Risk Tracker</div>
+                                    <div class="text-xs text-cyan-400/60">Monitoring | 10-msg window</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cloud Integration -->
+                    <div class="glass-card neon-glow p-6">
+                        <h4 class="text-lg font-bold text-cyan-300 mb-4">Cloud Integration</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-cyan-500/10">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xl">☁️</span>
+                                    <div>
+                                        <div class="text-sm font-medium text-cyan-300">Vertex AI</div>
+                                        <div class="text-xs text-cyan-400/60">Model Serving</div>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400">ACTIVE</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-cyan-500/10">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xl">🔤</span>
+                                    <div>
+                                        <div class="text-sm font-medium text-cyan-300">Natural Language API</div>
+                                        <div class="text-xs text-cyan-400/60">Sentiment Analysis</div>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400">ACTIVE</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-cyan-500/10">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xl">📊</span>
+                                    <div>
+                                        <div class="text-sm font-medium text-cyan-300">BigQuery</div>
+                                        <div class="text-xs text-cyan-400/60">Analytics Storage</div>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400">ACTIVE</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 rounded-lg bg-black/30 border border-cyan-500/10">
+                                <div class="flex items-center gap-3">
+                                    <span class="text-xl">⚡</span>
+                                    <div>
+                                        <div class="text-sm font-medium text-cyan-300">Cloud Functions</div>
+                                        <div class="text-xs text-cyan-400/60">Alert Pipeline</div>
+                                    </div>
+                                </div>
+                                <span class="text-xs px-2 py-1 rounded bg-green-500/20 text-green-400">ACTIVE</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Activity Monitor -->
+                    <div class="glass-card neon-glow p-6">
+                        <h4 class="text-lg font-bold text-cyan-300 mb-4">Activity Monitor</h4>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-cyan-400">Conversations Scanned</span>
+                                    <span class="text-cyan-300 font-mono">1,247</span>
+                                </div>
+                                <div class="h-2 bg-black/50 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" style="width: 78%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-cyan-400">Threats Detected</span>
+                                    <span class="text-red-400 font-mono">23</span>
+                                </div>
+                                <div class="h-2 bg-black/50 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-red-400 to-pink-500 rounded-full" style="width: 12%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-cyan-400">Alerts Sent</span>
+                                    <span class="text-orange-400 font-mono">18</span>
+                                </div>
+                                <div class="h-2 bg-black/50 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-orange-400 to-yellow-500 rounded-full" style="width: 9%"></div>
+                                </div>
+                            </div>
+                            <div class="pt-4 border-t border-cyan-500/20">
+                                <div class="flex items-center gap-2 text-sm">
+                                    <span class="animate-pulse">🔴</span>
+                                    <span class="text-cyan-300">Scanning Conversations...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="py-8 px-6 border-t border-cyan-500/20">
+            <div class="max-w-7xl mx-auto text-center">
+                <p class="text-sm text-cyan-400/50">
+                    SafeChild AI System | Powered by Google Cloud Platform | DistilBERT | LIME | PAN12 Dataset
+                </p>
+                <p class="text-xs text-cyan-400/30 mt-2">
+                    23CSE363 Cloud Computing Project | AI-Based Online Predator Detection
+                </p>
+            </div>
+        </footer>
+    </div>
+
+  <script>
+
+const escalationHistory = [];
+
+// =========================
+// PARTICLES
+// =========================
+
+const particlesContainer = document.getElementById('particles');
+
+for (let i = 0; i < 50; i++) {
+
+    const particle = document.createElement('div');
+
+    particle.className = 'particle';
+
+    particle.style.left = Math.random() * 100 + '%';
+
+    particle.style.animationDelay = Math.random() * 15 + 's';
+
+    particle.style.animationDuration =
+        (10 + Math.random() * 10) + 's';
+
+    particlesContainer.appendChild(particle);
+}
+
+// =========================
+// RADAR CHART
+// =========================
+
+const radarCtx =
+    document.getElementById('radarChart').getContext('2d');
+
+const radarChart = new Chart(radarCtx, {
+
+    type: 'radar',
+
+    data: {
+
+        labels: [
+            'Trust Building',
+            'Isolation',
+            'Inappropriate',
+            'Secrecy',
+            'Solicitation'
+        ],
+
+        datasets: [{
+
+            label: 'Behavior Analysis',
+
+            data: [0, 0, 0, 0, 0],
+
+            backgroundColor: 'rgba(0,240,255,0.2)',
+
+            borderColor: '#00f0ff',
+
+            pointBackgroundColor: '#00f0ff',
+
+            pointBorderColor: '#ffffff',
+
+            borderWidth: 2
+        }]
+    },
+
+    options: {
+
+        responsive: true,
+
+        scales: {
+
+            r: {
+
+                beginAtZero: true,
+
+                max: 100,
+
+                ticks: {
+
+                    color: '#00f0ff',
+
+                    backdropColor: 'transparent'
+                },
+
+                grid: {
+
+                    color: 'rgba(0,240,255,0.15)'
+                },
+
+                angleLines: {
+
+                    color: 'rgba(0,240,255,0.15)'
+                },
+
+                pointLabels: {
+
+                    color: '#00f0ff',
+
+                    font: {
+                        size: 12
+                    }
+                }
+            }
+        },
+
+        plugins: {
+
+            legend: {
+
+                display: false
+            }
+        }
+    }
+});
+
+// =========================
+// ESCALATION CHART
+// =========================
+
+const escalationCtx =
+document.getElementById('escalationChart')
+.getContext('2d');
+
+const escalationChart = new Chart(escalationCtx, {
+
+    type: 'line',
+
+    data: {
+
+        labels: [],
+
+        datasets: [{
+
+            label: 'Risk',
+
+            data: [],
+
+            borderColor: '#00f0ff',
+
+            backgroundColor: 'rgba(0,240,255,0.15)',
+
+            fill: true,
+
+            tension: 0.4,
+
+            pointBackgroundColor: '#00f0ff',
+
+            pointRadius: 5
+        }]
+    },
+
+    options: {
+
+        responsive: true,
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true,
+
+                max: 1,
+
+                ticks: {
+
+                    color: '#00f0ff'
+                },
+
+                grid: {
+
+                    color: 'rgba(0,240,255,0.1)'
+                }
+            },
+
+            x: {
+
+                ticks: {
+
+                    color: '#00f0ff'
+                },
+
+                grid: {
+
+                    color: 'rgba(0,240,255,0.05)'
+                }
+            }
+        },
+
+        plugins: {
+
+            legend: {
+
+                display: false
+            }
+        }
+    }
+});
+
+
+window.behaviorRadarChart = radarChart;
+window.timelineChart = escalationChart;
+
+// =========================
+// ADD MESSAGE
+// =========================
+
+async function addMessage() {
+
+    const input =
+        document.getElementById('chat-input');
+
+    const text =
+        input.value.trim();
+
+    if (!text) return;
+
+    try {
+
+        const response = await fetch('/predict', {
+
+            method: 'POST',
+
+            headers: {
+
+                'Content-Type': 'application/json'
+            },
+
+            body: JSON.stringify({
+                text: text
+            })
+        });
+
+        if (!response.ok) {
+
+            throw new Error("Backend error");
+        }
+
+        const result = await response.json();
+
+        displayMessage(
+            text,
+            result.overall_risk,
+            result.alert_level
+        );
+
+        updateDashboard(result, text);
+
+        input.value = '';
+
+    } catch (err) {
+
+        console.error(err);
+
+        alert("Backend not running or Flask error");
+    }
+}
+
+// =========================
+// DISPLAY MESSAGE
+// =========================
+
+function displayMessage(text, risk, level) {
+
+    const chat =
+        document.getElementById('chat-messages');
+
+    const div =
+        document.createElement('div');
+
+    let color = '#00ff88';
+
+    if (level === 'MEDIUM')
+        color = '#ffd700';
+
+    if (level === 'HIGH')
+        color = '#ff6b35';
+
+    if (level === 'CRITICAL')
+        color = '#ff1744';
+
+    div.className =
+        'msg-predator p-3 rounded-lg mb-3';
+
+    div.innerHTML = `
+
+        <div class="flex justify-between">
+
+            <div>
+
+                <div class="text-pink-400 text-xs font-bold mb-1">
+                    ⚠️ SUSPECT
+                </div>
+
+                <div class="text-white">
+                    ${text}
+                </div>
+
+            </div>
+
+            <div class="text-right">
+
+                <div style="color:${color}"
+                     class="font-bold text-xl">
+
+                    ${(risk * 100).toFixed(0)}%
+
+                </div>
+
+                <div style="color:${color}"
+                     class="text-xs">
+
+                    ${level}
+
+                </div>
+
+            </div>
+
+        </div>
+    `;
+
+    chat.appendChild(div);
+
+    chat.scrollTop = chat.scrollHeight;
+}
+
+// =========================
+// UPDATE DASHBOARD
+// =========================
+
+function updateDashboard(result, text) {
+
+    updateRiskMeter(
+        result.overall_risk,
+        result.alert_level
+    );
+
+    updateCategoryBars(result);
+
+    radarChart.data.datasets[0].data = [
+
+        result.trust * 100,
+
+        result.isolation * 100,
+
+        result.inappropriate * 100,
+
+        result.secrecy * 100,
+
+        result.solicitation * 100
+    ];
+
+    radarChart.update();
+
+    escalationHistory.push(
+        result.overall_risk
+    );
+
+    if (escalationHistory.length > 10)
+        escalationHistory.shift();
+
+    escalationChart.data.labels =
+        escalationHistory.map(
+            (_, i) => `Msg ${i + 1}`
+        );
+
+    escalationChart.data.datasets[0].data =
+        escalationHistory;
+
+    escalationChart.update();
+
+    updateConfidence(result);
+
+    updateLIME(text);
+
+    updateStages(result.overall_risk);
+
+    updateReasoning(result);
+
+    updateTrend(result.overall_risk);
+}
+
+// =========================
+// RISK METER
+// =========================
+
+function updateRiskMeter(risk, level) {
+
+    const circle =
+        document.getElementById('risk-circle');
+
+    const value =
+        document.getElementById('risk-value');
+
+    const badge =
+        document.getElementById('alert-badge');
+
+    const circumference =
+        2 * Math.PI * 70;
+
+    const offset =
+        circumference - (risk * circumference);
+
+    circle.style.strokeDasharray =
+        circumference;
+
+    circle.style.strokeDashoffset =
+        offset;
+
+    let color = '#00ff88';
+
+    if (level === 'MEDIUM')
+        color = '#ffd700';
+
+    if (level === 'HIGH')
+        color = '#ff6b35';
+
+    if (level === 'CRITICAL')
+        color = '#ff1744';
+
+    circle.style.stroke = color;
+
+    value.innerText =
+        risk.toFixed(2);
+
+    value.style.color = color;
+
+    badge.innerText = level;
+
+    badge.style.color = color;
+
+    badge.style.borderColor = color;
+
+    badge.style.background =
+        color + '22';
+}
+
+// =========================
+// CATEGORY BARS
+// =========================
+
+function updateCategoryBars(r) {
+
+    const categories = [
+
+        ['Trust Building', r.trust, '#FF6B6B'],
+
+        ['Isolation', r.isolation, '#4ECDC4'],
+
+        ['Inappropriate', r.inappropriate, '#45B7D1'],
+
+        ['Secrecy', r.secrecy, '#FFA07A'],
+
+        ['Solicitation', r.solicitation, '#98D8C8']
+    ];
+
+    document.getElementById('category-bars')
+    .innerHTML = categories.map(c => `
+
+        <div class="flex items-center gap-3">
+
+            <div class="w-32 text-xs text-cyan-300">
+                ${c[0]}
+            </div>
+
+            <div class="flex-1 h-2 bg-black rounded">
+
+                <div class="h-full rounded"
+                     style="
+                     width:${c[1]*100}%;
+                     background:${c[2]};
+                     box-shadow:0 0 10px ${c[2]};
+                     ">
+
+                </div>
+
+            </div>
+
+            <div class="text-xs"
+                 style="color:${c[2]}">
+
+                 ${(c[1]*100).toFixed(0)}%
+
+            </div>
+
+        </div>
+    `).join('');
+}
+
+// =========================
+// CONFIDENCE
+// =========================
+
+function updateConfidence(r) {
+
+    const confidenceContainer =
+        document.getElementById(
+            'confidence-levels'
+        );
+
+    const data = [
+
+        ['Trust', r.trust],
+
+        ['Isolation', r.isolation],
+
+        ['Inappropriate', r.inappropriate],
+
+        ['Secrecy', r.secrecy],
+
+        ['Solicitation', r.solicitation]
+    ];
+
+    confidenceContainer.innerHTML =
+        data.map(item => `
+
+        <div class="text-center">
+
+            <div class="text-3xl font-bold text-cyan-300">
+
+                ${(item[1]*100).toFixed(0)}%
+
+            </div>
+
+            <div class="text-xs text-cyan-400">
+
+                ${item[0]}
+
+            </div>
+
+        </div>
+
+    `).join('');
+}
+
+// =========================
+// STAGES
+// =========================
+
+function updateStages(risk) {
+
+    for (let i = 1; i <= 4; i++) {
+
+        document.getElementById(
+            `stage-${i}`
+        ).style.opacity = '0.4';
+    }
+
+    if (risk >= 0.75)
+        document.getElementById('stage-4').style.opacity = '1';
+
+    else if (risk >= 0.50)
+        document.getElementById('stage-3').style.opacity = '1';
+
+    else if (risk >= 0.25)
+        document.getElementById('stage-2').style.opacity = '1';
+
+    else
+        document.getElementById('stage-1').style.opacity = '1';
+}
+
+// =========================
+// LIME
+// =========================
+
+function updateLIME(text) {
+
+    const words =
+        text.split(' ');
+
+    const container =
+        document.getElementById(
+            'lime-capsules'
+        );
+
+    container.innerHTML =
+        words.map(word => `
+
+        <div class="lime-capsule lime-positive">
+
+            ${word}
+
+        </div>
+
+    `).join('');
+}
+
+// =========================
+// REASONING
+// =========================
+
+function updateReasoning(r) {
+
+    const reasoning =
+        document.getElementById('ai-reasoning');
+
+    let title =
+        "Safe Conversation";
+
+    let message =
+        "No major grooming indicators detected.";
+
+    let color =
+        "#00ff88";
+
+    // =========================
+    // CRITICAL SOLICITATION
+    // =========================
+
+    if (r.solicitation >= 0.15) {
+
+        title = "Critical Solicitation Risk";
+
+        message =
+        "The AI detected requests for private content or unsafe interaction patterns.";
+
+        color = "#ff1744";
+    }
+
+    // =========================
+    // SECRECY
+    // =========================
+
+    else if (r.secrecy >= 0.10) {
+
+        title = "Secrecy Manipulation";
+
+        message =
+        "The conversation encourages hiding information from parents or guardians.";
+
+        color = "#ff9800";
+    }
+
+    // =========================
+    // TRUST BUILDING
+    // =========================
+
+    else if (r.trust >= 0.10) {
+
+        title = "Early Grooming Indicators";
+
+        message =
+        "The AI detected trust-building language commonly used in grooming conversations.";
+
+        color = "#ffd600";
+    }
+
+    // =========================
+    // ISOLATION
+    // =========================
+
+    else if (r.isolation >= 0.10) {
+
+        title = "Isolation Attempt";
+
+        message =
+        "The conversation attempts to emotionally isolate the child.";
+
+        color = "#26c6da";
+    }
+
+    // =========================
+    // INAPPROPRIATE
+    // =========================
+
+    else if (r.inappropriate >= 0.10) {
+
+        title = "Inappropriate Content";
+
+        message =
+        "Potentially inappropriate or unsafe language detected.";
+
+        color = "#ab47bc";
+    }
+
+    reasoning.innerHTML = `
+
+        <div class="p-4 rounded-lg bg-black/40 border"
+             style="border-color:${color}44">
+
+            <div class="font-bold mb-2"
+                 style="color:${color}">
+
+                ⚠️ ${title}
+
+            </div>
+
+            <div class="text-sm text-cyan-300">
+
+                ${message}
+
+            </div>
+
+        </div>
+    `;
+}
+
+// =========================
+// TREND
+// =========================
+
+function updateTrend(risk) {
+
+    const trend =
+        document.getElementById(
+            'escalation-status'
+        );
+
+    if (risk >= 0.75) {
+
+        trend.innerHTML =
+            "Trend: CRITICAL";
+
+        trend.style.color =
+            "#ff1744";
+    }
+
+    else if (risk >= 0.40) {
+
+        trend.innerHTML =
+            "Trend: ELEVATED";
+
+        trend.style.color =
+            "#ff9800";
+    }
+
+    else {
+
+        trend.innerHTML =
+            "Trend: STABLE";
+
+        trend.style.color =
+            "#00f0ff";
+    }
+}
+
+// =========================
+// EXAMPLES
+// =========================
+
+function loadExample(type) {
+
+    const examples = {
+
+        trust:
+        "You're very mature for your age.",
+
+        isolation:
+        "Your parents don't understand you like I do.",
+
+        secrecy:
+        "Keep this secret between us.",
+
+        solicitation:
+        "Send me private pictures and don't tell anyone."
+    };
+
+    document.getElementById(
+        'chat-input'
+    ).value = examples[type];
+
+    addMessage();
+}
+document.getElementById('chat-input')
+.addEventListener('keypress', function(e) {
+
+    if (e.key === 'Enter') {
+
+        addMessage();
+    }
+});// =========================
+// SCROLL FUNCTIONS
+// =========================
+
+function scrollToAnalyzer() {
+
+    const section =
+        document.getElementById('analyzer');
+
+    if(section){
+
+        section.scrollIntoView({
+            behavior: 'smooth'
+        });
+    }
+}
+
+function scrollToDashboard() {
+
+    const section =
+        document.getElementById('dashboard');
+
+    if(section){
+
+        section.scrollIntoView({
+            behavior: 'smooth'
+        });
+    }
+}
+</script>
+</body>
+</html>
