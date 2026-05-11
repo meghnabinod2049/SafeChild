@@ -1,9 +1,21 @@
+# ==================== app.py ====================
+
 from flask import Flask, request, jsonify, send_file
+from google.cloud import bigquery
+import requests
 import torch
 import torch.nn as nn
 from transformers import AutoTokenizer, AutoModel
 
 app = Flask(__name__)
+
+# ==================== BIGQUERY ====================
+
+bq_client = bigquery.Client()
+
+# ==================== CLOUD FUNCTION URL ====================
+
+ALERT_FUNCTION_URL = "https://us-central1-safechild-project.cloudfunctions.net/alert_pipeline"
 
 # ==================== MODEL SETUP ====================
 
@@ -85,6 +97,64 @@ model.load_state_dict(
 model.eval()
 
 print(f"Model loaded on {device}")
+
+# ==================== BIGQUERY LOGGING ====================
+
+def log_to_bigquery(message, risk, severity):
+
+    table_id = "safechild-project.safechild.detections"
+
+    rows_to_insert = [
+
+        {
+            "message": message,
+            "risk": float(risk),
+            "severity": severity
+        }
+    ]
+
+    errors = bq_client.insert_rows_json(
+        table_id,
+        rows_to_insert
+    )
+
+    if errors:
+
+        print("BigQuery Insert Errors:", errors)
+
+    else:
+
+        print("Logged to BigQuery Successfully")
+
+# ==================== CLOUD FUNCTION ALERT ====================
+
+def trigger_moderator_alert(message, risk):
+
+    payload = {
+
+        "message": message,
+
+        "risk": float(risk),
+
+        "moderator": "meghnabinod2020@gmail.com"
+    }
+
+    try:
+
+        response = requests.post(
+
+            ALERT_FUNCTION_URL,
+
+            json=payload
+        )
+
+        print("Cloud Function Alert Triggered")
+
+        print(response.text)
+
+    except Exception as e:
+
+        print("Alert Trigger Error:", e)
 
 # ==================== DASHBOARD ====================
 
@@ -209,7 +279,18 @@ def predict():
         "meet at night",
         "abandoned place",
         "send me a picture",
-        "private photo"
+        "private photo",
+        "come to my house",
+        "parents arent there",
+        "parents aren't there",
+        "when your parents arent there",
+        "when your parents aren't there",
+        "home alone",
+        "come over alone",
+        "visit me alone",
+        "meet secretly",
+        "come tomorrow",
+        "come at night"
     ]
 
     # ==================== APPLY BOOSTS ====================
@@ -224,7 +305,7 @@ def predict():
 
         if word in text_lower:
 
-            isolation += 0.45
+            isolation += 0.75
 
     for word in secrecy_words:
 
@@ -236,8 +317,8 @@ def predict():
 
         if word in text_lower:
 
-            solicitation += 0.75
-
+            solicitation += 1.25
+            isolation += 0.40
             inappropriate += 0.40
 
     # ==================== LIMIT VALUES ====================
@@ -264,7 +345,7 @@ def predict():
 
         secrecy * 0.20 +
 
-        solicitation * 0.25
+        solicitation * 0.40
     )
 
     overall_risk = min(
@@ -274,9 +355,16 @@ def predict():
 
     # ==================== ALERT LEVEL ====================
 
-    if overall_risk >= 0.75:
+    if overall_risk >= 0.70:
 
         alert_level = "CRITICAL"
+
+        trigger_moderator_alert(
+
+            text,
+
+            overall_risk
+        )
 
     elif overall_risk >= 0.50:
 
@@ -289,6 +377,14 @@ def predict():
     else:
 
         alert_level = "LOW"
+
+    # ==================== BIGQUERY LOGGING ====================
+
+    log_to_bigquery(
+        text,
+        overall_risk,
+        alert_level
+    )
 
     # ==================== RESPONSE ====================
 
