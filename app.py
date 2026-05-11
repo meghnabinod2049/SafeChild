@@ -2,12 +2,15 @@
 from smtp_alert import send_alert_email
 from flask import Flask, request, jsonify, send_file
 from google.cloud import bigquery
+from PIL import Image
+import pytesseract
 import requests
 import torch
 import torch.nn as nn
 from transformers import AutoTokenizer, AutoModel
 
 app = Flask(__name__)
+pytesseract.pytesseract.tesseract_cmd = r"C:\Users\meghn\AppData\Local\Programs\Tesseract-OCR\tesseract.exe"
 
 # ==================== BIGQUERY ====================
 
@@ -164,7 +167,217 @@ def dashboard():
     return send_file(
         'safechild_dashboard.html'
     )
+def analyze_text(text):
 
+    # ==================== TOKENIZATION ====================
+
+    encoding = tokenizer(
+        text,
+        max_length=512,
+        padding='max_length',
+        truncation=True,
+        return_tensors='pt'
+    )
+
+    input_ids = encoding['input_ids'].to(device)
+
+    attention_mask = encoding['attention_mask'].to(device)
+
+    # ==================== MODEL PREDICTION ====================
+
+    with torch.no_grad():
+
+        outputs = model(
+            input_ids,
+            attention_mask
+        )
+
+        probs = torch.sigmoid(
+            outputs
+        ).cpu().numpy()[0]
+
+    # ==================== CATEGORY SCORES ====================
+
+    trust = float(probs[0])
+
+    isolation = float(probs[1])
+
+    inappropriate = float(probs[2])
+
+    secrecy = float(probs[3])
+
+    solicitation = float(probs[4])
+
+    text_lower = text.lower()
+
+    # ==================== TRUST ====================
+
+    trust_words = [
+
+        "special",
+        "understand you",
+        "mature for your age",
+        "you are mature",
+        "only you",
+        "i care about you",
+        "spoil you",
+        "you make me happy",
+        "i enjoy talking to you"
+    ]
+
+    # ==================== ISOLATION ====================
+
+    isolation_words = [
+
+        "parents dont understand",
+        "parents don't understand",
+        "nobody understands",
+        "only talk to me",
+        "they will judge you",
+        "dont mention me",
+        "don't mention me",
+        "your parents are strict"
+    ]
+
+    # ==================== SECRECY ====================
+
+    secrecy_words = [
+
+        "don't tell",
+        "dont tell",
+        "keep this secret",
+        "between us",
+        "delete messages",
+        "delete the chat",
+        "hide this",
+        "nobody will know",
+        "parents see",
+        "keep this between us"
+    ]
+
+    # ==================== SOLICITATION ====================
+
+    solicitation_words = [
+
+        "send pics",
+        "send pic",
+        "private picture",
+        "private pics",
+        "hot pics",
+        "send photos",
+        "meet alone",
+        "come alone",
+        "video call alone",
+        "meet at night",
+        "abandoned place",
+        "send me a picture",
+        "private photo",
+        "come to my house",
+        "parents arent there",
+        "parents aren't there",
+        "when your parents arent there",
+        "when your parents aren't there",
+        "home alone",
+        "come over alone",
+        "visit me alone",
+        "meet secretly",
+        "come tomorrow",
+        "come at night"
+    ]
+
+    # ==================== BOOSTS ====================
+
+    for word in trust_words:
+
+        if word in text_lower:
+
+            trust += 0.35
+
+    for word in isolation_words:
+
+        if word in text_lower:
+
+            isolation += 0.75
+
+    for word in secrecy_words:
+
+        if word in text_lower:
+
+            secrecy += 0.55
+
+    for word in solicitation_words:
+
+        if word in text_lower:
+
+            solicitation += 1.25
+
+            isolation += 0.40
+
+            inappropriate += 0.40
+
+    # ==================== LIMIT ====================
+
+    trust = min(trust, 1.0)
+
+    isolation = min(isolation, 1.0)
+
+    inappropriate = min(inappropriate, 1.0)
+
+    secrecy = min(secrecy, 1.0)
+
+    solicitation = min(solicitation, 1.0)
+
+    # ==================== OVERALL ====================
+
+    overall_risk = (
+
+        trust * 0.15 +
+
+        isolation * 0.20 +
+
+        inappropriate * 0.20 +
+
+        secrecy * 0.20 +
+
+        solicitation * 0.40
+    )
+
+    overall_risk = min(overall_risk, 1.0)
+
+    # ==================== ALERT LEVEL ====================
+
+    if overall_risk >= 0.70:
+
+        alert_level = "CRITICAL"
+
+    elif overall_risk >= 0.50:
+
+        alert_level = "HIGH"
+
+    elif overall_risk >= 0.25:
+
+        alert_level = "MEDIUM"
+
+    else:
+
+        alert_level = "LOW"
+
+    return {
+
+        'trust': trust,
+
+        'isolation': isolation,
+
+        'inappropriate': inappropriate,
+
+        'secrecy': secrecy,
+
+        'solicitation': solicitation,
+
+        'overall_risk': overall_risk,
+
+        'alert_level': alert_level
+    }
 # ==================== PREDICTION API ====================
 
 @app.route('/predict', methods=['POST'])
@@ -176,6 +389,7 @@ def predict():
         'text',
         ''
     )
+    result = analyze_text(text)
 
     # ==================== TOKENIZATION ====================
 
@@ -394,25 +608,28 @@ def predict():
 
     # ==================== RESPONSE ====================
 
-    return jsonify({
-
-        'trust': trust,
-
-        'isolation': isolation,
-
-        'inappropriate': inappropriate,
-
-        'secrecy': secrecy,
-
-        'solicitation': solicitation,
-
-        'overall_risk': overall_risk,
-
-        'alert_level': alert_level
-    })
-
+    return jsonify(result)
 # ==================== HEALTH CHECK ====================
+@app.route('/predict-image', methods=['POST'])
+def predict_image():
 
+    if 'image' not in request.files:
+
+        return jsonify({
+            'error': 'No image uploaded'
+        })
+
+    file = request.files['image']
+
+    image = Image.open(file)
+
+    extracted_text = pytesseract.image_to_string(image)
+
+    result = analyze_text(extracted_text)
+
+    result['extracted_text'] = extracted_text
+
+    return jsonify(result)
 @app.route('/health', methods=['GET'])
 def health():
 

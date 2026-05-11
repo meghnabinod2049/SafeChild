@@ -438,19 +438,73 @@
                             </div>
                         </div>
 
-                        <div class="space-y-3 max-h-96 overflow-y-auto pr-2" id="chat-messages">
-                            <!-- Messages injected by JS -->
-                        </div>
+                        ><div class="space-y-3 max-h-96 overflow-y-auto pr-2" id="chat-messages">
+    <!-- Messages injected by JS -->
+</div>
 
-                        <div class="mt-4 pt-4 border-t border-cyan-500/20">
-                            <div class="flex gap-2">
-                                <input type="text" id="chat-input" placeholder="Type a message to analyze..." 
-                                    class="flex-1 bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-2 text-white placeholder-cyan-700 focus:outline-none focus:border-cyan-400 transition-colors">
-                                <button onclick="addMessage()" class="px-4 py-2 bg-cyan-500/20 border border-cyan-500/50 rounded-lg text-cyan-300 hover:bg-cyan-500/30 transition-all">
-                                    ➤
-                                </button>
-                            </div>
-                            <div class="mt-2 flex gap-2">
+<!-- OCR EXTRACTED TEXT -->
+<div class="ocr-output mt-4 p-4 rounded-lg border border-cyan-500/20 bg-black/30">
+
+    <h3 class="text-cyan-300 mb-2">
+        Extracted OCR Text
+    </h3>
+
+    <pre id="extracted-text"
+         class="text-white whitespace-pre-wrap"></pre>
+
+</div>
+
+<!-- TEXT INPUT -->
+<div class="mt-4 p-4 rounded-lg border border-cyan-500/20 bg-black/30">
+
+    <div class="flex gap-2 mb-4">
+
+        <input
+            type="text"
+            id="chat-input"
+            placeholder="Enter suspicious message..."
+            class="flex-1 bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-2 text-white"
+        >
+
+        <button
+            onclick="addMessage()"
+            class="px-4 py-2 bg-cyan-500/20 border border-cyan-500/50 rounded-lg text-cyan-300 hover:bg-cyan-500/30 transition-all"
+        >
+            Analyze Text
+        </button>
+
+    </div>
+
+</div>
+
+<!-- IMAGE INPUT -->
+<div class="mt-4 p-4 rounded-lg border border-cyan-500/20 bg-black/30">
+
+    <div class="text-sm text-cyan-300 mb-2">
+        Upload Chat Screenshot
+    </div>
+
+    <div class="flex gap-2">
+
+        <input
+            type="file"
+            id="chat-image"
+            accept="image/*"
+            class="flex-1 bg-black/50 border border-cyan-500/30 rounded-lg px-4 py-2 text-white"
+        >
+
+        <button
+            onclick="analyzeImage()"
+            class="px-4 py-2 bg-pink-500/20 border border-pink-500/50 rounded-lg text-pink-300 hover:bg-pink-500/30 transition-all"
+        >
+            📷 Analyze Screenshot
+        </button>
+
+    </div>
+
+</div>
+
+<div class="mt-2 flex gap-2">
                                 <button onclick="loadExample('trust')" class="text-xs px-3 py-1 rounded-full border border-pink-500/30 text-pink-400 hover:bg-pink-500/10 transition-all">Trust Building</button>
                                 <button onclick="loadExample('isolation')" class="text-xs px-3 py-1 rounded-full border border-orange-500/30 text-orange-400 hover:bg-orange-500/10 transition-all">Isolation</button>
                                 <button onclick="loadExample('secrecy')" class="text-xs px-3 py-1 rounded-full border border-purple-500/30 text-purple-400 hover:bg-purple-500/10 transition-all">Secrecy</button>
@@ -963,6 +1017,68 @@ window.timelineChart = escalationChart;
 // =========================
 // ADD MESSAGE
 // =========================
+async function analyzeImage() {
+
+    const fileInput =
+        document.getElementById(
+            'chat-image'
+        );
+
+    if (!fileInput.files.length) {
+
+        alert('Please upload an image');
+
+        return;
+    }
+
+    const formData = new FormData();
+
+    formData.append(
+        'image',
+        fileInput.files[0]
+    );
+
+    const response = await fetch(
+        '/predict-image',
+        {
+            method: 'POST',
+            body: formData
+        }
+    );
+
+    const result = await response.json();
+
+    console.log(result);
+
+    document.getElementById(
+        'extracted-text'
+    ).innerText =
+        result.extracted_text;
+}
+
+
+
+    // =========================
+    // UPDATE UI
+    // =========================
+
+    document.getElementById(
+        'risk-score'
+    ).innerText =
+        Math.round(
+            result.overall_risk * 100
+        ) + '%';
+
+    document.getElementById(
+        'severity-level'
+    ).innerText =
+        result.alert_level;
+
+    document.getElementById(
+        'extracted-text'
+    ).innerText =
+        result.extracted_text;
+
 
 async function addMessage() {
 
