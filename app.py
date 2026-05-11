@@ -1,5 +1,5 @@
 # ==================== app.py ====================
-
+from smtp_alert import send_alert_email
 from flask import Flask, request, jsonify, send_file
 from google.cloud import bigquery
 import requests
@@ -360,6 +360,12 @@ def predict():
         alert_level = "CRITICAL"
 
         trigger_moderator_alert(
+
+            text,
+
+            overall_risk
+        )
+        send_alert_email(
 
             text,
 

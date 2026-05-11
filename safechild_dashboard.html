@@ -663,7 +663,7 @@
                                 <div class="flex items-center gap-3">
                                     <span class="text-xl">☁️</span>
                                     <div>
-                                        <div class="text-sm font-medium text-cyan-300">Vertex AI</div>
+                                        <div class="text-sm font-medium text-cyan-300">Cloud Storage</div>
                                         <div class="text-xs text-cyan-400/60">Model Serving</div>
                                     </div>
                                 </div>
@@ -1324,24 +1324,131 @@ function updateStages(risk) {
 
 function updateLIME(text) {
 
-    const words =
-        text.split(' ');
-
     const container =
         document.getElementById(
             'lime-capsules'
         );
 
-    container.innerHTML =
-        words.map(word => `
+    // HIGH RISK WORDS
+    const highRiskWords = [
 
-        <div class="lime-capsule lime-positive">
+        "private",
+        "picture",
+        "pictures",
+        "secret",
+        "alone",
+        "meet",
+        "house",
+        "parents",
+        "dont",
+        "don't",
+        "nobody",
+        "unsafe",
+        "send"
+    ];
 
-            ${word}
+    // MEDIUM RISK WORDS
+    const mediumRiskWords = [
 
-        </div>
+        "understand",
+        "trust",
+        "special",
+        "mature",
+        "tonight",
+        "friendship",
+        "privately"
+    ];
 
-    `).join('');
+    const words = text.split(' ');
+
+    container.innerHTML = words.map(word => {
+
+        const cleanWord =
+            word.toLowerCase()
+            .replace(/[.,!?]/g, '');
+
+        let style = `
+            background:
+            linear-gradient(
+                135deg,
+                rgba(255,0,160,0.15),
+                rgba(255,0,160,0.08)
+            );
+
+            border:
+            1px solid rgba(255,0,160,0.3);
+
+            color:#ff7abf;
+
+            box-shadow:none;
+        `;
+
+        // =========================
+        // HIGH RISK
+        // =========================
+
+        if (
+            highRiskWords.includes(cleanWord)
+        ) {
+
+            style = `
+                background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,23,68,0.35),
+                    rgba(255,0,0,0.2)
+                );
+
+                border:
+                1px solid #ff1744;
+
+                color:#ffffff;
+
+                box-shadow:
+                0 0 12px #ff1744,
+                0 0 25px rgba(255,23,68,0.4);
+
+                transform:scale(1.05);
+            `;
+        }
+
+        // =========================
+        // MEDIUM RISK
+        // =========================
+
+        else if (
+            mediumRiskWords.includes(cleanWord)
+        ) {
+
+            style = `
+                background:
+                linear-gradient(
+                    135deg,
+                    rgba(255,152,0,0.25),
+                    rgba(255,193,7,0.15)
+                );
+
+                border:
+                1px solid #ff9800;
+
+                color:#ffd180;
+
+                box-shadow:
+                0 0 10px rgba(255,152,0,0.5);
+            `;
+        }
+
+        return `
+
+            <div class="lime-capsule"
+                 style="${style}">
+
+                ${word}
+
+            </div>
+        `;
+
+    }).join('');
 }
 
 // =========================
